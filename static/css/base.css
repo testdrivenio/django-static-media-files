@@ -1,7 +1,8 @@
 h1 {
     color: brown;
+    padding: 20px;
 }
 img.homepage_image {
     width: 500px;
-    /*height: 200px;*/
+    padding: 20px;
 }
