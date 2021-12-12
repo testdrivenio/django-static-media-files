@@ -238,7 +238,9 @@ fabric.properties
 modules.xml
 .idea/misc.xml
 *.ipr
-
+staticfiles
+**/*.png
+.DS_Store
 # Sonarlint plugin
 .idea/sonarlint
 

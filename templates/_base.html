@@ -2,14 +2,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <meta charset="UTF-8">
-    <title>Django static and media files</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}">
 </head>
 <body>
-<div class="container">
+    <nav>
+        <a href="/">Home</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
     {% block content %}
     {% endblock content %}
-</div>
 </body>
 </html>
