@@ -239,7 +239,7 @@ modules.xml
 .idea/misc.xml
 *.ipr
 staticfiles
-**/*.png
+uploads/*.png
 .DS_Store
 # Sonarlint plugin
 .idea/sonarlint
