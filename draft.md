@@ -11,7 +11,7 @@ By the end of this article, you should be able to:
 1. Using static files (or static assets) in a production environment
 1. Uploading files in Django (media files)
 
-Django is a full-stack framework. It comes with many batteries that you can use to build a fully functional web application.  Django also lets you work with files with ease. These files could be of three types.
+Django is a full-stack framework. It comes with many batteries that you can use to build a fully functional web application. Django also lets you work with files with ease. These files could be of three types.
 
 ## Three types of files in a Django application
 
@@ -27,31 +27,8 @@ We will be focussing on static and media files in this article. Even though the 
 
 ## Serving Static Files in a development environment
 
-Before proceeding, let's create a basic Django application.
 
-```bash
-# Create and activate a virtual environment
-virtualenv .venv
-source .venv/bin/activate
-
-# Install Django
-pip install django==3.2.10
-
-# Create a new Django project
-django-admin startproject config .
-
-# Run Django migrations
-python manage.py migrate
-```
-
-Now that our development setup is ready, let's see how we can serve static files in the development mode. We will be serving a `CSS` file and an `image` file.
-
-Create a new folder named `static` at the root of the project and copy [base.css] and [python.jpg] to it.
-
-```shell
-(.venv) ➜ ls static
-base.css   python.jpg
-```
+Let's see how we can serve static files in the development mode. The following example serves a `CSS` file and an `image` file.
 
 Django's [staticfiles](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/) app helps us serve static files in development as well as in the production environment.
 
@@ -59,36 +36,19 @@ Django's [staticfiles](https://docs.djangoproject.com/en/3.2/ref/contrib/staticf
 
 Here are some essential staticfiles parameters that you should take care of:
 
-- [STATIC_URL](https://docs.djangoproject.com/en/3.2/ref/settings/#static-url): URL where your static files can be accessed. Default is `/static/`.
+- [STATIC_URL](https://docs.djangoproject.com/en/3.2/ref/settings/#static-url): URL where the user can access your static files. Default is `/static/`.
 
-- [STATIC_ROOT](https://docs.djangoproject.com/en/3.2/ref/settings/#static-root): Location where [collectstatic](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/#django-admin-collectstatic) will collect all the static files. Collectstatic is a management command that collects static files from `STATIC_ROOT`.
+- [STATIC_ROOT](https://docs.djangoproject.com/en/3.2/ref/settings/#static-root): Location where [collectstatic](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/#django-admin-collectstatic) will collect all the static files. Collectstatic is a management command that collects static files into the `STATIC_ROOT`.
 
 - [STATICFILES_DIRS](https://docs.djangoproject.com/en/3.2/ref/settings/#staticfiles-dirs): Additional locations to look for static files.
 
 - [STATICFILES_STORAGE](https://docs.djangoproject.com/en/3.2/ref/settings/#staticfiles-storage): Storage for your static files. By default, the files are stored in the file system. You can change the storage to [cloud storage or a CDN](https://docs.djangoproject.com/en/3.2/howto/static-files/deployment/#serving-static-files-from-a-cloud-service-or-cdn).
 
-Now that we have seen the essential parameters to handle static files let's see them in action.
+Now that we have seen the essential parameters to handle static files, let's see them in action.
 
-Create a new folder `templates` at the root of the project. This directory will hold all our Django templates. Then, update the `settings.py` for the same.
+Check the `settings.py` file to see the settings: https://github.com/testdrivenio/django-static-media-files/blob/21ac2562d1cfcd459629e7c484bcdd2e09defa13/config/settings.py#L123-L126.
 
-```python
-# config/settings.py
-
-TEMPLATES = [
-    {   
-        ...
-        "DIRS": [BASE_DIR / "templates"],
-        ...
-    },
-]
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static", # new
-]
-
-```
-
-Now, create the `_base.html` under the templates directory.
+Now that we have configured the settings for handling static files, we define the static files in a Django template. 
 
 ```html
 <!-- templates/_base.html -->
@@ -111,42 +71,13 @@ Now, create the `_base.html` under the templates directory.
 </html>
 ```
 
-Notice that we have added a line: `{% load static %}` and used a similar tag to point to our `base.css` file. The former allows us to use static templatetags, and the latter will automatically point to the file under the `static` directory. Moreover, the tag will generate a complete URL like, `/static/base.css`. This tag comes in handy when deciding to change the `STATIC_URL` in a vast project. In such situations, the URL change is handled by Django automatically.
+https://github.com/testdrivenio/django-static-media-files/blob/draft/templates/_base.html
 
-Next, create the `index.html` file.
+Notice that we have added a line: `{% load static %}` and used a similar tag to point to our `base.css` file. The former allows us to use static templatetags, and the latter will automatically point to the file under the `static` directory. Moreover, the tag will generate a complete URL like `/static/base.css`. This tag comes in handy when deciding to change the `STATIC_URL` in a vast project. In such situations, the URL change is handled by Django automatically.
 
-```html
-<!-- templates/index.html -->
+The same approach can be used wherever we need to access the static file: https://github.com/testdrivenio/django-static-media-files/blob/draft/templates/index.html.
 
-{% extends '_base.html' %}
-
-{% load static %}
-{% block content %}
-
-<h1>Django static v/s media files</h1>
-
-<img src="{% static 'python.jpg' %}" class="homepage_image">
-{% endblock content %}
-```
-
-We use the same templatetag to load the image file as well.
-
-We need to create a simple view to render our template. For now, let's add the view to the `config/urls.py` file. We will move this view into an app in a later section.
-
-```python
-# config/urls.py
-
-from django.contrib import admin
-from django.urls import path
-from django.views.generic import TemplateView # new
-
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", TemplateView.as_view(template_name="index.html"), name="home"), # new
-]
-```
-
-Run the server: `python manage.py runserver` and navigate to [http://localhost:8000](http://localhost:8000) to test our application.
+Here's how the static files are seen in action,
 
 ![static files on dev](assets/sample.png)
 
@@ -154,24 +85,9 @@ Run the server: `python manage.py runserver` and navigate to [http://localhost:8
 
 Serving static files in a development environment was pretty straightforward. We use the `static` templatetag to load the file into the template. However, we need to do more configuration for production because production would require a production-grade server like [gunicorn](https://gunicorn.org/) that does not serve static files.
 
-We can use [whitenoise](http://whitenoise.evans.io/en/stable/) to serve static files from our production application.
+We can use [whitenoise](http://whitenoise.evans.io/en/stable/) to serve static files from our production application. However, it is recommended to use whitenoise with the newer, more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) format.
 
-Install whitenoise and gunicorn(for) testing the static files on a production server:
-
-```shell
-(.venv) ➜ pip install 'whitenoise[brotli]'==5.3.0 gunicorn==20.1.0
-```
-
-We will use whitenoise with the newer, more efficient [brotli](https://en.wikipedia.org/wiki/Brotli) format.
-
-Once installed, add the following to the Django settings file:
-
-```python
-# config/settings.py
-
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-```
+Here's our updated configuration for handling static files in production: https://github.com/testdrivenio/django-static-media-files/blob/21ac2562d1cfcd459629e7c484bcdd2e09defa13/config/settings.py#L123-L128
 
 The `STATIC_ROOT` will host all the collected static files (when using `collectstatic`), and the `STATICFILES_STORAGE` will compress our static files. If you want to cache as well, replace `STATICFILES_STORAGE` with,
 
@@ -179,19 +95,7 @@ The `STATIC_ROOT` will host all the collected static files (when using `collects
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 ```
 
-Finally, add whitenoise's middleware above all others, but after Django's [SecurityMiddleware](https://docs.djangoproject.com/en/stable/ref/middleware/#module-django.middleware.security):
-
-```python
-# config/settings.py
-
-MIDDLEWARE = [
-  'django.middleware.security.SecurityMiddleware',
-  'whitenoise.middleware.WhiteNoiseMiddleware',
-  ...
-]
-```
-
-Run `python manage.py collectstatic` to collect and compress all static files. The command should create a new folder named `staticfiles` in your root directory.
+Running the `collectstatic` command creates the compressed files for the static ones. 
 
 ```shell
 (.venv) ➜  ls -l staticfiles
@@ -203,23 +107,17 @@ total 11912
 ...
 ```
 
-Compare the sizes of the original file (`base.css`) and brotli compressed (`base.css.br`).
-
-Run the gunicorn server and navigate to [http://localhost:8000](http://localhost:8000):
-
-```shell
-(.venv) ➜ gunicorn config.wsgi --log-level DEBUG
-```
+Compare the sizes of the original file (`base.css`) and brotli compressed (`base.css.br`). The compressed file can be served faster via a CDN (due to its small size) and quickly decompressed in the browser. 
 
 ## Handling media files in development
 
 Two essential options for handling media files are:
 
-- MEDIA_URL: Similar to static URL, the URL where media files can be accessed.
+- MEDIA_URL: Similar to static URL, the URL where the users can access media files.
 
 - MEDIA_ROOT: Location where all media files are stored.
 
-We will use the `uploads` folder in the root directory to store uploaded files.
+Here's the configuration used in the example application. https://github.com/testdrivenio/django-static-media-files/blob/21ac2562d1cfcd459629e7c484bcdd2e09defa13/config/settings.py#L135-L136
 
 ```python
 # config/settings.py
@@ -228,24 +126,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "uploads"
 ```
 
-Let's create a new Django application:
-
-```shell
-(.venv) ➜ python manage.py startapp userprofile
-```
-
-Add the created app to `INSTALLED_APPS`.
-
-```python
-# config/settings.py
-
-INSTALLED_APPS = [
-    ...
-    "userprofile.apps.UserprofileConfig",
-]
-```
-
-Let's create a tiny model and form to upload files to our Django application.
+For the media files example, we have created a new app, `userprofile` with a [tiny model](https://github.com/testdrivenio/django-static-media-files/blob/draft/userprofile/models.py) and [a form](https://github.com/testdrivenio/django-static-media-files/blob/draft/userprofile/forms.py) to handle the file uploads. 
 
 ```python
 # userprofile/models.py
@@ -256,15 +137,6 @@ class Profile(models.Model):
     image = models.FileField()
 ```
 
-Run the migrations to create the Profile table:
-
-```shell
-(.venv) ➜ python manage.py makemigrations userprofile
-(.venv) ➜ python manage.py migrate
-```
-
-Next, we create a form to handle the upload. Instead of creating a custom field, you can always use the `forms.ModelForm`.
-
 ```python
 # userprofile/forms.py
 from django import forms
@@ -273,7 +145,7 @@ class UploadForm(forms.Form):
     image = forms.FileField(label="Upload a picture")
 ```
 
-Next, we create a view to upload and render the uploaded images.
+For handling the file uploads, we have a function-based view that will get the uploaded image, then Django will process it, save it in the appropriate directory, and send back the image in the same template. 
 
 ```python
 # userprofile/views.py
@@ -298,61 +170,26 @@ def profile(request: HttpRequest):
     return render(request, "profile.html", {"form": form})
 ```
 
-The view validates the uploaded image, saves it to our model, and returns the created profile to display on the template.
+We won't be using the static tag for media files as done in the case of static files. The uploaded file URL can be obtained directly from the `profile` object created. https://github.com/testdrivenio/django-static-media-files/blob/21ac2562d1cfcd459629e7c484bcdd2e09defa13/templates/profile.html#L14-L16
 
-Let's create the corresponding template:
+Django's development server is not capable of serving media files. A workaround is to add the media root as a static path. https://github.com/testdrivenio/django-static-media-files/blob/21ac2562d1cfcd459629e7c484bcdd2e09defa13/config/urls.py#L28-L29
 
-```html
-<!-- templates/profile.html -->
-
-{% extends '_base.html' %}
-
-{% block content %}
-
-<h1>Django static v/s media files</h1>
-
-{% if form %}
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">upload</button>
-</form>
-{% endif %}
-
-{% if profile %}
-<img src="{{profile.image.url}}" height="200px" alt="profile">
-{% endif %}
-
-{% endblock content %}
-```
-
-Django's development server is not capable of serving media files. So we need to add the media URL as a static path.
-
-```python
-# config/urls.py
-
-...
-from django.conf.urls.static import static
-from django.conf import settings
-
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", TemplateView.as_view(template_name="index.html"), name="home"),
-    path("", include("userprofile.urls")),
-]
-
-if settings.DEBUG: # new
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-```
-
-Restart the server and checkout the upload form at [http://localhost:8000/profile/](http://localhost:8000/profile/). Check out the `uploads` folder; Django will automatically make the uploaded file's name unique.
+Clone and run the application to see both static and media files in development. Django will take care of the naming (in case multiple uploads have the same name). 
 
 ## Handling media files in production
 
 Using external storage with a good CDN is recommended for handling media files in production. [Django-storages](https://django-storages.readthedocs.io/en/latest/) supports S3, Google Cloud Storage, and other cloud storage providers. Django-storages can be used to store static files as well.
 
-Check out these resources to learn how to manage static and media files(private & public)
+Check out these resources to learn how to manage static and media files. The posts also cover the private handling of media files. 
 
 - s3: [https://testdriven.io/blog/storing-django-static-and-media-files-on-amazon-s3/](https://testdriven.io/blog/storing-django-static-and-media-files-on-amazon-s3/)
 
 - DigitalOcean Spaces: [https://testdriven.io/blog/django-digitalocean-spaces/](https://testdriven.io/blog/django-digitalocean-spaces/)
+
+## Conclusion
+
+Static and media files are different and must be treated differently for security purposes.
+
+In this article, you saw examples of how to serve static files in development and production. In addition, the article also covered the different settings for static and media files, how Django handles them with minimal configuration, and how to serve media files in development. However, managing media files in production is out of the scope of this article, but the linked posts take care of the topic excellently. 
+
+You can find the example project on GitHub: https://github.com/testdrivenio/django-static-media-files.
